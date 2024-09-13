@@ -5,6 +5,10 @@ import bcryptjs from "bcryptjs";
 import { sendVerificationEmail } from "@/helpers/sendVerificationEmail";
 import { NextResponse } from "next/server";
 
+// if we try get method we get this error since
+// we didnt create a get method 
+// 405 Method Not Allowed
+
 export async function POST(request: Request) {
     // Can be moved outside the function as well,
     // which would be useful if we had GET or PATCH requests.
