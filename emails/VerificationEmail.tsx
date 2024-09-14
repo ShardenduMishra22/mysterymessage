@@ -18,7 +18,8 @@ import {
     otp: string;
   }
   
-  export default function VerificationEmail({ username, otp }: VerificationEmailProps) {
+  export default function VerificationEmail({username, otp }: VerificationEmailProps) {
+    console.log("Email is being sent you are in `email` page")
     return (
       <Html lang="en" dir="ltr">
         <Head>

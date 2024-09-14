@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+// no idea wtf is this for absolutely no idea fuck this
 import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/model/User";
 

@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/model/User";
 import bcryptjs from "bcryptjs";
-import { sendVerificationEmail } from "@/helpers/sendVerificationEmail";
+import {sendVerificationEmail} from "@/helpers/sendVerificationEmail";
 import { NextResponse } from "next/server";
 
 // if we try get method we get this error since
@@ -39,7 +38,7 @@ export async function POST(request: Request) {
 
         // check if user exist by the email given 
         const existingUserByEmail = await UserModel.findOne({ email });
-        const verifyCode = Math.floor(Math.random() * 9000000 + 1000000).toString();
+        const verifyCode = Math.floor(Math.random() * 900000 + 100000).toString();
 
         // if the user exists who has the given email
         if (existingUserByEmail){
