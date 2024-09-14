@@ -3,7 +3,7 @@
 import { getServerSession } from "next-auth";
 // we can extract data from session as we already injected it 
 
-import { authOptions } from "../auth/[...auth]/options";
+import { authOptions } from "../auth/[...nextauth]/options";
 import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/model/User";
 
