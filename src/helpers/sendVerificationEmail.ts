@@ -12,7 +12,12 @@ export async function sendVerificationEmail(username : string,email : string,ver
             from: 'Acme <onboarding@resend.dev>',
             to: email,
             subject: 'Anonymous Feedback Application Verification Code',
-            react: VerificationEmail({ username, otp: verifyCode }),
+            react: VerificationEmail(
+                { 
+                    username, 
+                    otp: verifyCode 
+                }
+            ),
         });
 
         return {success : true, message : "Verification Email Sent Sucessfully"};

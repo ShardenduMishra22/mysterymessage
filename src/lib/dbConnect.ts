@@ -20,9 +20,9 @@ async function dbConnect() : Promise<void>{
         console.log("\ndb\n");
         connection.isConnected = db.connections[0].readyState;
         
-        console.log("\nDatabase object:\n", db);
-        console.log("\nFirst connection object:\n", db.connections[0]);
-        console.log("\nDatabase ready state:\n", db.connections[0].readyState);
+        // console.log("\nDatabase object:\n", db);
+        // console.log("\nFirst connection object:\n", db.connections[0]);
+        // console.log("\nDatabase ready state:\n", db.connections[0].readyState);
         console.log("\nConnected to Data-Base !!\n");
     }catch(error){
         console.log("\nError Connecting to Data-Base !!\n",error);
