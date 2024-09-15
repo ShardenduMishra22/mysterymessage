@@ -20,7 +20,7 @@ export async function sendVerificationEmail(email : string,username : string,ver
         await resend.emails.send({
             // from: 'shardendumishra01@gmail.com',
             from: 'Acme <onboarding@resend.dev>',
-            to: email,
+            to: "shardendumishra01@gmail.com",
             subject: 'Anonymous Feedback Application Verification Code',
             react: VerificationEmail(
                 { 
