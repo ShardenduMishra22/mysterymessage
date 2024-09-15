@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import { MessageCard } from '@/components/MessageCard';
@@ -10,12 +9,13 @@ import { Message } from '@/model/User';
 import { ApiResponse } from '@/types/ApiResponse';
 import { zodResolver } from '@hookform/resolvers/zod';
 import axios, { AxiosError } from 'axios';
-import { Loader2, RefreshCcw } from 'lucide-react';
-import { User } from 'next-auth';
+import { Loader2, RefreshCcw, Copy, User, MessageSquare } from 'lucide-react';
+import { User as NextAuthUser } from 'next-auth';
 import { useSession } from 'next-auth/react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { AcceptMessageSchema } from '@/schemas/acceptMessageSchema';
+import { motion } from 'framer-motion';
 
 function UserDashboard() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -85,16 +85,12 @@ function UserDashboard() {
     [setIsLoading, setMessages, toast]
   );
 
-  // Fetch initial state from the server
   useEffect(() => {
     if (!session || !session.user) return;
-
     fetchMessages();
-
     fetchAcceptMessages();
   }, [session, setValue, toast, fetchAcceptMessages, fetchMessages]);
 
-  // Handle switch change
   const handleSwitchChange = async () => {
     try {
       const response = await axios.post<ApiResponse>('/api/accept-messages', {
@@ -121,8 +117,7 @@ function UserDashboard() {
     return <div></div>;
   }
 
-  const { username } = session.user as User;
-
+  const { username } = session.user as NextAuthUser;
   const baseUrl = `${window.location.protocol}//${window.location.host}`;
   const profileUrl = `${baseUrl}/u/${username}`;
 
@@ -135,63 +130,99 @@ function UserDashboard() {
   };
 
   return (
-    <div className="my-8 mx-4 md:mx-8 lg:mx-auto p-6 bg-white rounded w-full max-w-6xl">
-      <h1 className="text-4xl font-bold mb-4">User Dashboard</h1>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="my-8 mx-4 md:mx-8 lg:mx-auto p-6 bg-gradient-to-br from-purple-900 to-indigo-900 text-white rounded-lg shadow-xl w-full max-w-6xl"
+    >
+      <h1 className="text-4xl font-bold mb-6 text-purple-100">
+        <User className="inline-block mr-2" /> User Dashboard
+      </h1>
 
-      <div className="mb-4">
-        <h2 className="text-lg font-semibold mb-2">Copy Your Unique Link</h2>{' '}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        className="mb-6 bg-purple-800 p-4 rounded-lg"
+      >
+        <h2 className="text-lg font-semibold mb-2 text-purple-100">
+          Your Unique Link
+        </h2>
         <div className="flex items-center">
           <input
             type="text"
             value={profileUrl}
-            disabled
-            className="input input-bordered w-full p-2 mr-2"
+            readOnly
+            className="input input-bordered w-full p-2 mr-2 bg-white text-gray-800 rounded"
           />
-          <Button onClick={copyToClipboard}>Copy</Button>
+          <Button
+            onClick={copyToClipboard}
+            className="bg-purple-600 hover:bg-purple-700 text-white transition duration-300 ease-in-out"
+          >
+            <Copy className="mr-2 h-4 w-4" /> Copy
+          </Button>
         </div>
-      </div>
+      </motion.div>
 
-      <div className="mb-4">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3 }}
+        className="mb-6 flex items-center space-x-4"
+      >
         <Switch
           {...register('acceptMessages')}
           checked={acceptMessages}
           onCheckedChange={handleSwitchChange}
           disabled={isSwitchLoading}
+          className="bg-purple-200"
         />
-        <span className="ml-2">
+        <span className="text-purple-100">
           Accept Messages: {acceptMessages ? 'On' : 'Off'}
         </span>
-      </div>
-      <Separator />
+      </motion.div>
 
-      <Button
-        className="mt-4"
-        variant="outline"
-        onClick={(e) => {
-          e.preventDefault();
-          fetchMessages(true);
-        }}
+      <Separator className="my-6 bg-purple-800" />
+
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-semibold text-purple-100">
+          <MessageSquare className="inline-block mr-2" /> Your Messages
+        </h2>
+        <Button
+          variant="outline"
+          onClick={() => fetchMessages(true)}
+          className="bg-purple-700 hover:bg-purple-800 text-purple-100"
+        >
+          {isLoading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <RefreshCcw className="h-4 w-4" />
+          )}
+        </Button>
+      </div>
+
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.4 }}
+        className="grid grid-cols-1 md:grid-cols-2 gap-6"
       >
-        {isLoading ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : (
-          <RefreshCcw className="h-4 w-4" />
-        )}
-      </Button>
-      <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
         {messages.length > 0 ? (
           messages.map((message, index) => (
             <MessageCard
-              key={typeof message._id === 'string' || typeof message._id === 'number' ? message._id : index} // Ensure key is valid
+              key={typeof message._id === 'string' || typeof message._id === 'number' ? message._id : index}
               message={message}
               onMessageDelete={handleDeleteMessage}
             />
           ))
         ) : (
-          <p>No messages to display.</p>
+          <p className="text-purple-200 col-span-2 text-center py-4">
+            No messages to display.
+          </p>
         )}
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
 

@@ -1,21 +1,23 @@
-"use client"
+'use client';
 
-import { ApiResponse } from '@/types/ApiResponse';
-import { zodResolver } from '@hookform/resolvers/zod';
-import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import axios, { AxiosError } from 'axios';
+import { motion } from 'framer-motion';
+import { Loader2, Mail, Lock, UserPlus, User } from 'lucide-react';
 import { Form, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import axios, { AxiosError } from 'axios';
-import { Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { signUpSchema } from '@/schemas/signUpSchema';
+import { ApiResponse } from '@/types/ApiResponse';
+// import Image from 'next/image';
 
-export function useDebounce<T>(value: T, delay: number): T {
+function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState(value);
 
   useEffect(() => {
@@ -31,7 +33,7 @@ export function useDebounce<T>(value: T, delay: number): T {
   return debouncedValue;
 }
 
-const Page = () => {
+export default function SignUpForm() {
   const [username, setUsername] = useState('');
   const [usernameMessage, setUsernameMessage] = useState('');
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
@@ -55,16 +57,16 @@ const Page = () => {
       if (debouncedUsername) {
         setIsCheckingUsername(true);
         setUsernameMessage('');
-      }
-      try {
-        const response = await axios.get(`/api/check-username-unique?username=${debouncedUsername}`);
-        const msg = response.data.message;
-        setUsernameMessage(msg);
-      } catch (error) {
-        const axiosErr = error as AxiosError<ApiResponse>;
-        setUsernameMessage(axiosErr.response?.data.message || 'Error Checking Username');
-      } finally {
-        setIsCheckingUsername(false);
+        try {
+          const response = await axios.get(`/api/check-username-unique?username=${debouncedUsername}`);
+          const msg = response.data.message;
+          setUsernameMessage(msg);
+        } catch (error) {
+          const axiosErr = error as AxiosError<ApiResponse>;
+          setUsernameMessage(axiosErr.response?.data.message || 'Error Checking Username');
+        } finally {
+          setIsCheckingUsername(false);
+        }
       }
     };
 
@@ -75,124 +77,140 @@ const Page = () => {
     setIsSubmitting(true);
     try {
       const response = await axios.post<ApiResponse>('/api/sign-up', data);
-
       toast({
         title: 'Success',
         description: response.data.message,
       });
-
       router.push(`/verify/${username}`);
-      setIsSubmitting(false);
     } catch (error) {
       console.error('Error during sign-up:', error);
-
       const axiosError = error as AxiosError<ApiResponse>;
       const errorMessage = axiosError.response?.data.message || 'There was a problem with your sign-up. Please try again.';
-
       toast({
         title: 'Sign Up Failed',
         description: errorMessage,
         variant: 'destructive',
       });
-
+    } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <>
-      <div className="flex justify-center items-center min-h-screen bg-gray-900">
-        <div className="text-black w-full max-w-md p-10 space-y-8 bg-white rounded-xl shadow-lg transform transition duration-500 hover:scale-105">
-          <div className="text-center">
-            <h1 className="text-4xl font-extrabold tracking-tight text-gray-800 lg:text-5xl mb-6">Join Anonymous Feedback</h1>
-            <p className="mb-6 text-gray-600">Sign up to start your anonymous adventure</p>
-          </div>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                name="username"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-gray-700">Username</FormLabel>
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="flex justify-center items-center min-h-screen bg-gradient-to-br from-purple-900 to-indigo-900 dark:from-purple-900 dark:to-purple-800"
+    >
+      <div className="w-full max-w-md p-8 space-y-8 bg-white dark:bg-gray-800 rounded-lg shadow-xl">
+        <motion.div 
+          initial={{ y: -20 }}
+          animate={{ y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-center"
+        >
+          <h1 className="text-4xl font-extrabold tracking-tight text-purple-800 dark:text-purple-300 lg:text-5xl mb-6">
+            Join Anonymous Feedback
+          </h1>
+          <p className="mb-4 text-gray-600 dark:text-gray-300">Sign up to start your anonymous adventure</p>
+        </motion.div>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              name="username"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-purple-700 dark:text-purple-300">Username</FormLabel>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-purple-500" size={18} />
                     <Input
                       {...field}
                       onChange={(e) => {
                         field.onChange(e);
                         setUsername(e.target.value);
                       }}
-                      className="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="pl-10 border-purple-300 focus:border-purple-500 focus:ring-purple-500"
                     />
-                    {isCheckingUsername && <Loader2 className="animate-spin mt-2" />}
-                    {!isCheckingUsername && usernameMessage && (
-                      <p className={`text-sm mt-2 ${usernameMessage === 'Username is unique' ? 'text-green-500' : 'text-red-500'}`}>
-                        {usernameMessage}
-                      </p>
-                    )}
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                name="email"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-gray-700">Email</FormLabel>
-                    <Input
-                      {...field}
-                      name="email"
-                      className="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                    <p className="text-sm text-gray-400 mt-1">We will send you a verification code</p>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                name="password"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-gray-700">Password</FormLabel>
-                    <Input
-                      type="password"
-                      {...field}
-                      name="password"
-                      className="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button
-                type="submit"
-                className="w-full bg-blue-600 text-white font-semibold rounded-lg py-2 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Please wait
-                  </>
-                ) : (
-                  'Sign Up'
-                )}
-              </Button>
-            </form>
-          </Form>
-          <div className="text-center text-black mt-6">
-            <p>
-              Already a member?{' '}
-              <Link href="/sign-in" className="text-blue-600 hover:text-blue-800">
-                Sign in
-              </Link>
-            </p>
-          </div>
+                  </div>
+                  {isCheckingUsername && <Loader2 className="animate-spin mt-2 text-purple-500" />}
+                  {!isCheckingUsername && usernameMessage && (
+                    <p className={`text-sm mt-2 ${usernameMessage === 'Username is unique' ? 'text-green-500' : 'text-red-500'}`}>
+                      {usernameMessage}
+                    </p>
+                  )}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              name="email"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-purple-700 dark:text-purple-300">Email</FormLabel>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-purple-500" size={18} />
+                    <Input {...field} className="pl-10 border-purple-300 focus:border-purple-500 focus:ring-purple-500" />
+                  </div>
+                  <p className="text-sm text-gray-400 mt-1">We`ll send you a verification code</p>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              name="password"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-purple-700 dark:text-purple-300">Password</FormLabel>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-purple-500" size={18} />
+                    <Input type="password" {...field} className="pl-10 border-purple-300 focus:border-purple-500 focus:ring-purple-500" />
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button 
+              className='w-full bg-purple-600 hover:bg-purple-700 text-white transition duration-300 ease-in-out transform hover:scale-105'
+              type="submit"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  Please wait
+                </>
+              ) : (
+                <>
+                  <UserPlus className="mr-2 h-5 w-5" />
+                  Sign Up
+                </>
+              )}
+            </Button>
+          </form>
+        </Form>
+        <div className="text-center mt-4">
+          <p className="text-gray-600 dark:text-gray-300">
+            Already a member?{' '}
+            <Link href="/sign-in" className="text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300 transition duration-300 ease-in-out">
+              Sign in
+            </Link>
+          </p>
         </div>
+        
+        {/* Google Sign Up Button */}
+        {/* <div className="mt-6">
+          <Button 
+            onClick={() => {} }
+            className="w-full bg-white text-gray-700 border border-gray-300 hover:bg-gray-100 transition duration-300 ease-in-out transform hover:scale-105"
+          >
+            Sign up with Google
+          </Button>
+        </div> */}
       </div>
-    </>
+    </motion.div>
   );
-};
-
-export default Page;
+}
