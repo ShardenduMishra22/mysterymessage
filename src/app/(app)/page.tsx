@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import React from 'react';
-import { Shield, Brain, Lock, Zap, Send, UserCheck, MessageSquare, Linkedin, FileCode, User } from 'lucide-react';
+import { Shield, Brain, Lock, Zap, Send, UserCheck, MessageSquare, Linkedin, User } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ChevronRight } from 'lucide-react';

@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
 import { getServerSession } from "next-auth";
 // we can extract data from session as we already injected it 
 
@@ -8,7 +6,7 @@ import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/model/User";
 
 // this is not the user we created this is givern by Next.JS
-import { User } from "next-auth";
+// import { User } from "next-auth";
 
 export async function POST(request : Request){
     await dbConnect();
@@ -73,7 +71,7 @@ export async function POST(request : Request){
 }
 
 
-export async function GET(request : Request){
+export async function GET(){
     dbConnect();
     const session = await getServerSession(authOptions)
     const user = session?.user
